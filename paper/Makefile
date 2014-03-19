@@ -7,7 +7,8 @@ clean:
 	rm -f waverepo_paper.tex *.blg *.bbl waverepo_paper.pdf
 
 cleanall:
-	rm -fr cache figure waverepo_paper.pdf waverepo_paper.R
+	rm -fr cache figure waverepo_paper.pdf waverepo_paper.R waverepo_paper.tex
+	rm -f  *.aux *.bbl *.blg waverepo_paper.log waverepo_paper.out
 
 .PHONY: rpackages
 
