@@ -1,0 +1,1304 @@
+\documentclass{bmcart}
+\usepackage{mathpazo}
+\usepackage[utf8]{inputenc} %unicode support
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[T1]{fontenc}
+%%\usepackage[a4paper,left=2cm,right=4cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{xspace,amsmath}
+\newcommand{\um}{\ensuremath{\upmu \text{m}}\xspace}
+\usepackage{url,hyperref}
+%%\usepackage[authoryear]{natbib}
+\usepackage[sort&compress,numbers]{natbib}
+\newcommand{\dynamic}{(Dynamic)\xspace}
+\newcommand{\static}{(Static)\xspace}
+\newcommand{\hdfgroup}[1]{\texttt{#1}}
+\usepackage{marginnote}
+
+\newcommand{\mycomment}[1]{\marginnote{#1}}
+%% Place all figures at end of paper?
+%%\usepackage[noheads,nomarkers]{endfloat}
+\usepackage{upgreek}
+\providecommand{\tg}{\ensuremath{\upbeta}2(TG)\xspace}
+\providecommand{\btwoko}{\ensuremath{\upbeta}2 KO\xspace}
+\providecommand{\btwokof}{\ensuremath{\upbeta}2 knock-out (KO)\xspace}
+
+
+\begin{document}
+
+
+\begin{frontmatter}
+
+\begin{fmbox}
+\dochead{Research}
+
+\title{A data repository and analysis framework for spontaneous neural
+  activity recordings in developing retina}
+
+%% \author{S. J. Eglen$^{1,\ast}$,
+%%   M. Weeks$^2$, M. Jessop$^2$,
+%%   J. D. Simonotto$^{3,4}$, 
+%%   T. Jackson$^2$,
+%%   E. Sernagor$^5$}
+
+\author[addressref={Cam},corref={Cam},email={sje30@cam.ac.uk}]
+{\inits{SJE}\fnm{Stephen John} \snm{Eglen}}
+\author[addressref={York},email={michael.weeks@york.ac.uk}]
+{\inits{MW}\fnm{Michael} \snm{Weeks}}
+\author[addressref={York},email={mark.jessop@york.ac.uk}]
+{\inits{MJ}\fnm{Mark} \snm{Jessop}}
+\author[addressref={NclCS,IC},email={j.simonotto@imperial.ac.uk}]
+{\inits{ES}\fnm{Jennifer} \snm{Simonotto}}
+\author[addressref={York},email={tom.jackson@york.ac.uk}]
+{\inits{TJ}\fnm{Tom} \snm{Jackson}}
+\author[addressref={NclION},email={evelyne.sernagor@ncl.ac.uk}]
+{\inits{ES}\fnm{Evelyne} \snm{Sernagor}}
+
+
+\address[id=Cam]{%                           % unique id
+  \orgname{Cambridge Computational Biology Institute, University of Cambridge}, % university, etc
+  \street{Wilberforce Road},
+  \postcode{CB3~0WA}
+  \city{Cambridge},
+  \cny{UK}
+}
+
+\address[id=York]{%                           % unique id
+  \orgname{Advanced Computer Architecture Group, Computer Science Department,
+University of York}, % university, etc
+  \postcode{YO10 5GH}
+  \city{York},                              % city
+  \cny{UK}                                    % country
+}
+
+
+\address[id=NclCS]{%                           % unique id
+  \orgname{School of Computing Science, Newcastle University},
+  \postcode{NE1 7RU},
+  \city{Newcastle},
+  \cny{UK}
+}
+
+\address[id=IC]{%                           % unique id
+  \orgname{National Heart and Lung Institute, Imperial College London}
+  \street{Hammersmith Campus},
+  \postcode{W12 0NN},
+  \city{London},
+  \cny{UK}
+}
+
+
+\address[id=NclION]{%                           % unique id
+  \orgname{Institute of Neuroscience, Faculty of Medical Sciences,
+    Newcastle University}, % university, etc
+  \street{Framlington Place},
+  \postcode{NE2 4HH},
+  \city{Newcastle},
+  \cny{UK}
+}
+
+
+\end{fmbox}% comment this for two column layout
+
+\begin{comment}
+  
+\section*{TODO}
+
+\begin{enumerate}
+
+\end{enumerate}
+
+\end{comment}
+
+
+\begin{abstractbox}
+
+\begin{abstract} % abstract
+\parttitle{Background} 
+During early development, neural circuits fire spontaneously,
+generating activity episodes with complex spatiotemporal
+patterns. Recordings of spontaneous activity have been made in
+many parts of the nervous system over the last 25 years, reporting
+developmental changes in activity patterns and the effects of various
+genetic perturbations.
+
+\parttitle{Results} We present a curated repository of multielectrode
+array recordings of spontaneous activity in developing mouse and
+ferret retina.  The data have been annotated with minimal metadata and
+converted into HDF5.  This paper describes the structure of the data,
+along with examples of reproducible research using these data files.
+We also demonstrate how these data can be analysed in the CARMEN
+workflow system.  This article is written as a literate programming
+document; all programs and data described here are freely available.
+
+\parttitle{Conclusions} 1. We hope this repository will lead to novel
+analysis of spontaneous activity recorded in different laboratories.
+2. We encourage published data to be added to the repository.  3. This
+repository serves as an example of how multielectrode array recordings
+can be stored for long-term reuse.
+\end{abstract}
+
+\begin{keyword}
+\kwd{retinal waves}
+\kwd{spontaneous activity}
+\kwd{electrophysiology}
+\kwd{HDF5}
+\kwd{multielectrode arrays}
+\end{keyword}
+
+\end{abstractbox}
+\end{frontmatter}
+
+\section*{Dedication}
+We dedicate this paper to the memory of our dear friend and colleague
+Professor Colin Ingram who died December 15th 2013.  Colin was the lead
+investigator on the CARMEN project, from which this study arose.
+
+\section*{Background}
+
+
+The retina is the neural circuit within the eye responsible for
+converting light signals into neural activity.  During at least the
+first postnatal week of life in the mouse, retinal ganglion cells
+(RGCs) are spontaneously active, generating waves of activity that
+propagate across the retina.  These spontaneous activity patterns are
+thought to help refine the development of neuronal connections, since
+blocking or perturbing the activity leads to altered connectivity
+patterns.  For reviews on the nature and role of spontaneous activity
+in the nervous system, see \cite{Wong1999,Blankenship2010}.
+
+Retinal waves can be studied  using both imaging methods and
+multielectrode arrays (MEAs).  We have collected and annotated these
+recordings to allow researchers to compare the spatiotemporal
+properties of recordings obtained from different research groups.  We
+have focused on curating recordings collected by MEAs, because although
+there are several types of array recording platforms available on the
+market, the underlying data after spike detection and sorting is
+simply a set of event times denoting when an action potential was
+detected on a particular electrode.
+
+
+This paper describes the repository we have curated from many key
+papers investigating the nature of retinal spontaneous activity.  We
+have converted these data files into a common format so that it can be
+easily shared with others, and provide some scripts to analyse these
+recordings.  We created this repository for several reasons:
+
+\begin{enumerate}
+\item By building a repository from many sources we are able to
+  effectively compare findings from laboratories acquired under
+  different experimental conditions, and from different transgenic
+  mice.
+
+\item There are few public datasets of MEA recordings, although some
+  are available accompanying research papers \citep{Wagenaar2006}.
+
+\item We hope this platform will encourage future researchers to
+  contribute their data.  Many funding agencies now require data to be
+  archived and shared for several years, and we hope this will serve as
+  an example of how to share this type of data.
+
+\item Converting data to a standard open format, such as HDF5, should
+  ensure that they can be read for many years to come.  By
+  contrast, keeping old datasets in proprietary formats may mean
+  that the data are effectively unreadable in a few years.
+
+\item We have used these data as a demonstration for the
+  workflow system in the CARMEN virtual laboratory.
+
+\end{enumerate}
+
+This article is written as an example of ``reproducible research'', in
+that the results should be reproducible by others in a straightforward
+manner, given the same software and data \citep{Gentleman2004}.  The
+notion of reproducible research is beginning to be practised quite
+widely in some areas, such as Computational Biology
+\citep{Goecks2010}, but is not yet that common within most fields,
+including Neuroscience \citep{Delescluse2011,Stevens2013}.  Figures and tables
+marked \dynamic in the legends of this article are regenerated
+dynamically, involving recomputation as needed.  (Figures and tables
+marked \static are those that required no computation.)  The source
+file for this article contains \LaTeX\ and R code, from which the paper
+is generated (see section ``Availability of supporting data'').  Links
+to all files required to regenerate the paper are provided on the
+accompanying website \citep{web:wr}.
+
+
+\section*{Data Description}
+
+The project web page \citep{web:wr} contains links to the data and
+code, and will list any updates to the repository.  The data are
+freely available on the CARMEN portal \cite{web:wh}.  Free
+registration to the CARMEN system is required to access the data.
+
+The data provided to us from different laboratories arrived in several
+text and binary formats.  We converted them to one common format to
+promote their reuse.  We chose the open format HDF5 \cite{web:hdf5}
+because it provides an efficient and portable framework for storing
+large datasets.  It is supported by many popular computational
+environments, such as R, Python, Mathematica, Matlab and Julia, and is
+freely available on all major operating systems.  HDF5 is used across
+many scientific disciplines and is well-tested.
+
+HDF5 stores objects in a hierarchical tree that can be fully specified
+by the user.  Our approach is to store the principal data items (such
+as spike times and electrode positions) for a recording in the top
+level of the tree.  Relevant metadata about recordings (such as the
+age of the retina, and the species) are stored in objects under the
+\hdfgroup{/meta/} group of the tree.
+
+\subsection*{Data format for storage of MEA recordings}
+The following objects are stored in the root of the HDF5 data files:
+
+\begin{enumerate}
+\item \hdfgroup{epos}: an $N \times 2$ matrix, where $N$ is the number
+  of spike trains in the recording.  Row $i$ stores the
+  $(x,y)$ location assigned to spike train $i$ in this recording.  The
+  values $x$ and $y$ are specified in \um.
+
+\item \hdfgroup{sCount}: a vector of length $N$.  $sCount[i]$ stores
+  the number of spikes included in spike train $i$.
+
+ \item \hdfgroup{spikes}: a vector of length S, where $S =
+     sum(sCount)$.  These are the spike times (in seconds).  The spike
+   trains for each electrode are concatenated into one long vector, so
+   that the spikes for electrode $j \in [1,N]$ are stored in elements $a$ to
+   $b$, where $a=\sum_{i=1}^{j-1} sCount[i]$ and $b=a+ sCount[j] -1$.
+   Within each spike train, the spike times are sorted, smallest first.
+
+ \item \hdfgroup{array}: a string describing the MEA used
+   to record the activity.  Table~\ref{tab:names} lists the values used
+   to date.
+
+\item \hdfgroup{names}: an optional vector of strings of length $N$;
+  $names[i]$ stores the name assigned to spike train $i$.
+   %% (These are used just by the R package, and could be regarded as
+   %% metadata.)
+
+\end{enumerate}
+
+To help summarize each recording, we have also created a 
+\hdfgroup{/summary} group containing information which can be readily
+computed from the spike trains.  These summary points can be read from
+HDF5 files on their own (rather than reading the entire file) and so
+provides an efficient cache of this information.  The following fields
+are provided.
+
+\begin{enumerate}
+\item \hdfgroup{/summary/N}: the number of spike trains.
+\item \hdfgroup{/summary/duration}: the duration of the recording in
+  seconds, rounded up to the nearest second.
+\item \hdfgroup{/summary/frate}: a vector of length $N$.  Element $i$
+  stores the firing rate in Hz of spike train $i$.
+\item \hdfgroup{/summary/totalspikes}: the total number of spike trains in the file.
+\end{enumerate}
+
+
+
+\section*{Data sources}
+
+Table~\ref{tab:n} lists the main studies included in the repository,
+and the number of files in each collection.  A key challenge in
+creating the repository was writing functions to parse the various
+formats of source data from the different research groups.  This has
+now been done for each of the major formats.  When each data set was
+converted, tests were performed to check that our results matched
+those presented in the original publications; some of these checks are
+discussed later.  First we describe each of the key studies included
+in the repository:
+
+
+\paragraph{Blankenship2011}
+
+This study investigated the impact of knocking out two connexin
+isoforms (Cx36 or Cx45) upon spontaneous activity
+\citep{Blankenship2011}.  Recordings of wild-type, single or double
+(Cx36 and Cx45) knock-outs were performed at postnatal day 11/12 (P11/12).
+
+\paragraph{Demas2003}
+
+
+Recordings over an extended period (P9--P42) were made in wild-type mice,
+along with mice reared in the dark \cite{Demas2003}.  This study also
+served as a baseline for subsequent recordings in transgenic mice
+\citep{Demas2006}.
+
+\paragraph{Demas2006}
+
+This set contains data recorded from \textit{nob} mutant mouse, where
+retinal waves persist at late developmental stages \cite{Demas2006}.
+
+\paragraph{Hennig2011}
+A set of eight recordings investigating the effects of chronic
+bicuculline application at two critical ages when the effect of GABA
+upon RGCs switches from excitatory to inhibitory \citep{Hennig2011}.
+
+\paragraph{Kirkby2013}
+Recent recordings from wild-type and \btwokof mice recorded in the first
+postnatal week \citep{Kirkby2013}.
+
+\paragraph{Maccione2014}
+Wild-type recordings in developing mouse retina recorded from P2 to
+P13 using a high density (4096 electrode) MEA \citep{Maccione2014}.
+This study presents recordings with high spatial resolution obtained
+at pan retinal scale.  It reports that waves become localized hotspots
+shortly before eye opening and that cellular recruitment within waves
+increases significantly during the second postnatal week.
+
+
+\paragraph{Stacy2005}
+
+A set of further control recordings in wild-type mice are provided
+\citep{Stacy2005}.  In this study, retinal waves were also recorded in
+transgenic mice where cholinergic neurotransmission was inhibited in
+most of the retina.  However, recordings from the transgenic animal
+could not be found post-publication.
+
+
+\paragraph{Stafford2009}
+
+A detailed set of recordings at one age (P6) showing that \btwoko mice
+still generate correlated waves \cite{Stafford2009}; see also
+\citep{Sun2008}.  A directional bias in control waves was also
+reported for the first time.
+
+
+\paragraph{Sun2008}
+
+Two different versions of the \btwoko transgenic mice were studied and, in
+comparison to earlier studies \citep{McLaughlin2003}, were shown to have
+correlated activity extending over larger distances than wild type.
+Although the key paper \citep{Sun2008} focuses on postnatal days 4 and
+5, recordings from a range of days are provided, and were analysed
+separately \citep{Sun2008epi}.
+
+\paragraph{Torborg2004}
+
+This key summarises data that appeared in several publications
+\citep{McLaughlin2003,Torborg2004,Hansen2005,Torborg2005}.  These were
+the first MEA recordings of spontaneous activity in the \btwoko mouse,
+and showed that although individual RGCs were spontaneously active,
+the correlations in firing of neighbouring RGCs were strongly reduced.
+There are also recordings combining the \btwoko line with a gap
+junction knock-out (CX36), and recordings under different
+pharmacological conditions.
+
+\paragraph{Wong1993}
+
+These are the first MEA recordings of retinal waves, in ferret at
+different developmental ages.  (Some data from here were presented
+also in \citep{Meister1991}.)  This was the first paper to introduce
+the key measure of correlated activity, the correlation index, that
+has been subsequently used in most studies.  Although the recordings
+are relatively short, they highlighted strong distance-dependent
+correlations gradually decaying with age.  (Conversion of these files
+was complicated as they were binary files, so we converted them
+through a custom macintosh program written for these data by Markus
+Meister.)
+
+
+
+\paragraph{Xu2011}
+
+To further investigate the effect of cholinergic neurotransmission,
+a transgenic line (where $\upbeta 2$-nAChR was expressed in only RGCs of
+\btwoko mice) was generated \citep{Xu2011}.  In this \tg line, waves
+were restored, although the spatial extent of correlations was
+reduced.
+
+
+\subsection*{Citing the data}
+
+We are grateful to our colleagues for sharing their recordings.  If
+you use any of these data sets, we request that you acknowledge the
+relevant authors by citing the corresponding papers (listed in
+Table~\ref{tab:n}).
+
+
+\subsection*{Minimal metadata}
+
+Our approach to metadata is deliberately minimal, simply describing
+what we think are some of the essential features of the recordings,
+such as developmental age, and genotype.  This of course means that
+many details are missing, but in most cases we hope that they
+can be extracted (manually) from the corresponding publications.  We
+store the metadata as named items in the HDF5 file, under the
+\hdfgroup{/meta/} group.  For example, the developmental age of the
+recording is stored in \hdfgroup{/meta/age}.  Table~\ref{tab:meta}
+describes the metadata that are included in the HDF5 files.
+
+We attempted to include metadata regarding spike detection and
+sorting.  However, many different methods for
+spike detection and sorting have been used in the last 25 years.
+These vary from manual, semi-automated to fully automated.
+Furthermore, the level of details included in publications varied
+significantly.  Rather than encode these in the metadata, we instead
+provide a brief textual summary of the methods in
+Table~\ref{tab:sorting}.
+
+\section*{Analyses}
+
+
+We now provide some examples of reproducible research
+using the repository.  The aim is to summarise the main features of
+the repository, rather than to provide novel analyses of these data.
+
+\subsection*{R package}
+
+We have used the R programming environment to develop a package of
+tools for the analysis of spontaneous activity.  R, however, is not
+required to use these data files.  This R package (called
+\texttt{sjemea}) was created in 2001 (to support work subsequently
+published \cite{Demas2003}) and is still under development.  The
+package primarily focuses on the batch analysis of data; other open
+tools more suitable towards interactive analysis are available
+\citep{Bonomini2005,Bologna2010}.  We now give several examples of
+analysing the repository using code from this R package.
+
+\subsection*{Overview of the repository}
+
+Figure~\ref{fig:nelec-durn} provides an overview of the repository,
+showing that recordings range from just a few minutes to many hours.
+In particular, we see that two different groups recorded waves
+continuously for up to eight hours \citep{Stacy2005,Hennig2011}.  
+
+
+
+As all recordings were from extracellular electrodes, 
+each electrode can detect activity from multiple neurons.  Most, but
+not all, recordings have been spike-sorted to discriminate activity
+from multiple on each electrode.  We therefore refer to spike trains
+coming from ``units'' throughout this paper to avoid confusion between
+multi-unit activity from several neurons and inferred activity from a
+single neuron.  Most recordings contain fewer than 100 spike trains
+because they were made on MEAs consisting of 60 or 64 electrodes.
+There are also two clear groups of recordings with around 500--1300
+units which were recorded from the two higher-density arrays
+\citep{Stafford2009,Maccione2014}.
+
+
+
+\subsection*{Fourplot}
+
+The ``fourplot'' is our one page summary plot of a recording which we
+use as an initial screen to check its quality.  Figure~\ref{fig:fourplot}
+shows one such example.  This plot allows us to quickly evaluate the
+recording using the features described in the figure legend.  The
+accompanying website has a gallery section showing the fourplot for
+each datafile in the repository.
+
+\subsection*{Correlation indices in neonatal ferret retina}
+
+Retinal waves induce correlations in the firing patterns of
+neighbouring RGCs.  This was first demonstrated in the analysis of
+ferret retinal waves using the correlation index measure
+\citep{Wong1993}.  The correlation index measures the degree that two
+units spike together within some small time window (typically
+50\,ms).  Figure~\ref{fig:wong-ci} shows the correlation index as a
+function of the distance separating any given pair of units.
+This figure almost exactly replicates Figure 8 of the prior study
+\cite{Wong1993}, with the only exception that we also show correlation
+indices for pairs of units with zero distance separating them.
+
+\subsection*{Correlation indices in wild-type and transgenic mice}
+
+Cholinergic neurotransmission is required for the generation of
+retinal waves in early development \citep{Sernagor1996,Feller1996}.
+One key transgenic line has been global knock-out of the $\upbeta 2$
+subunit of the nicotonic acetylcholine receptor (nAChR), termed
+\btwoko here.  Initial reports suggested that \btwoko mice lack
+retinal waves \citep{Bansal2000,McLaughlin2003}, but subsequent
+studies reported retinal waves in these mice
+\citep{Sun2008,Stafford2009}.  These differences might have occurred
+because of different recording conditions, notably temperature and
+bath medium \citep{Stafford2009}.  Given the importance of these
+results, we have collected and curated most of the key recordings
+published to date that quantify spontaneous activity in \btwoko mice.
+
+
+The effects of transgenically rescuing $\upbeta 2$-nAChR into just
+RGCs, leaving it knocked out in the rest of the nervous system, were
+recently investigated \citep{Xu2011}.  In this genetic manipulation,
+termed \tg, retinal waves were correlated over shorter distances than
+waves in wild-type mice (Figure 1G of \citep{Xu2011}).  We have
+recreated that result by recalculating the correlation indices.
+Figure~\ref{fig:Xu-CI} has the same key properties as previously
+reported with the notable exception that the correlation indices in
+both wild-type and \tg mice are about half the magnitude compared to
+those originally reported.  However, the shape of the two groups, and the
+overall conclusions, are unaffected.  The discrepancy between
+the two results is likely to be an artifact of the method previously
+used \citep{Xu2011}, although their code is no longer available to
+confirm this.
+
+
+
+\subsection*{CARMEN application: burst analysis}
+
+We have made our data freely available in the CARMEN system
+\cite{web:carmen}.  The CARMEN Virtual Laboratory is a collaborative
+online facility for neuroscientists.  Data can be uploaded to a
+repository, and shared with other neuroscientists.  Extensive metadata
+\citep{Jessop2010-wj} can be attached to the data, and a search
+facility allows data to be located in the repository.  The system is
+currently targeted towards electrophysiology data, and predominantly
+MEA and  electroencephalography (EEG) data.
+
+Useful neuroscience analysis routines can be converted into CARMEN
+services \citep{Weeks2013-pu}. Service code can be written in a range
+of programming languages (including Matlab, Python, R, C/C++, Java), and
+can be easily wrapped into a service using the CARMEN Service Builder
+tool. Metadata attached to each service provides information for the
+user and the system.  Once a service has been registered with the
+CARMEN system, users can run them via the portal, using any available
+data on the repository. The service is executed within the CARMEN
+system's execution environment, which is a private cloud of
+heterogeneous servers. The execution environment can support multiple
+execution server environments; currently these are Windows Server,
+Centos5 Linux and Scientific Linux 4 platforms.  The execution details
+are hidden from the user.
+
+The CARMEN portal also deploys a workflow tool within the browser, to
+allow users to tie services together into a processing pipeline. In
+order to support the interaction of services, a common data standard
+for all data types is used; the Neural Data Translation Format (NDF).
+NDF provides a standard format for neural time series data, segment
+data, and event data \citep{Liang2010-bb}.  In addition it has a rich
+metadata header which provides a detailed description of the data
+contents, and which supports the addition of annotations and other
+relevant attachments (e.g., visual or audio files).  A workflow editor
+provides a graphical means to construct and edit workflows. A workflow
+enactment engine allows the workflow to be run over the execution
+servers.  The heterogeneous nature of the service infrastructure means
+that a workflow can be constructed from services that are written
+using different programming languages and for differing platforms.
+
+
+To demonstrate the virtual laboratory workflows on these data, three
+services were built in Matlab and compiled into a standalone
+executable for inclusion into the service framework:
+
+\begin{enumerate}
+\item HDF5 to NDF converter --- This reads in the HDF5 file and converts
+  it into an NDF neural event data file.
+\item A burst detection service --- This finds bursts independently
+  within each spike train of a recording \cite{Hennig2011}.  The
+  service takes input data in the form of an NDF neural event file.
+\item A graphing service to plot burst durations of multiple input
+  files.
+\end{enumerate}
+
+The CARMEN workflow facility (Figure~\ref{fig:workflow}) chains these
+services together so that given an input file, it is first converted
+into NDF and then the burst times are computed.  The output from the
+independent burst analysis services are then compared to generate a
+plot such as Figure~\ref{fig:carmenburst}.  This figure demonstrates
+that median burst duration is around 0.1\,s and there is good
+agreement between recordings from different laboratories, albeit with
+one recording showing a few bursts longer than 2\,s.
+
+%% Burst analysis from R now in ./bursts.Rnw.
+
+
+\section*{Discussion}
+
+\paragraph{Role of the repository}
+Given the ongoing debate about whether neuronal activity instructs the
+development of neuronal circuits \citep{Feller2009,Chalupa2009}, we
+believe it is important to understand the spatiotemporal properties of
+waves in different recordings.  This repository provides a framework
+for systematic studies of spontaneous activity, looking for example at
+the effects of particular mutations, such as the \btwoko.
+Furthermore, we can now begin to study the variability between
+laboratories when recording spontaneous activity in the retina, as has
+already been reported for cortical cultures \citep{Novellino2011}.  We
+hope this repository will also lead to increased data reuse.
+
+
+\paragraph{Collecting new data}
+
+We hope that the repository will prove useful and we encourage
+investigators to provide recordings of spontaneous activity.  We
+typically require only spike times  (rather than voltage traces) and
+a description of how to map units to positions on the array.  The
+minimal metadata is also required, typically in a spreadsheet.  It is
+preferable if the data have already been presented in an article, so
+that we can refer to that article.  Unpublished data can also be
+accepted as long as the investigator is aware that the data are
+made freely available.
+
+The current focus of the repository is on collecting spontaneous
+activity from developing retina.  Since spontaneous activity is
+present in other systems, we also anticipate extending the repository
+to include data from, for example, cortical and hippocampal cultures
+\citep{MacLaren2011}.
+
+
+\paragraph{Generating new standards}
+
+To date, there are no established standards for storing spike trains
+recorded from MEAs.  However, one key aim of the datasharing program
+of the International Neuroinformatics Coordinating Facility (INCF) is
+to establish such standards.  We anticipate that the data provided
+here can be a useful test case for evaluating any proposed standards
+\citep{Teeters2013}.  Given the relatively simple format in which our
+data are currently provided, we imagine that changing the data files
+to accommodate any new standards should be straightforward.
+
+
+
+
+
+\section*{Methods}
+
+All data reported in this paper have been previously published, see
+Table~\ref{tab:n}.  Details of the experimental procedures are
+available in those articles.  In all cases, recordings of spike times
+(rather than voltage traces) were provided.  Files were then converted
+into the common HDF5 framework described in this paper.  During this
+conversion, data were checked where possible with previous reports,
+for example, descriptions of mean firing rates.  Metadata were
+validated using a separate script.  The fourplot
+(Figure~\ref{fig:fourplot}) for each recording was also checked.  In a
+few instances this led to discussions with the original authors, or
+some data being excluded.
+
+%% Validation in validate.R
+
+\section*{Availability of supporting data}
+
+
+The HDF5 files are available as a zip file \citep{web:wh}, and
+accompanying code is linked to from the project web page
+\citep{web:wr}.  This article is an example of a literate programming
+document.  It has been created in R using the \texttt{knitr} package
+\citep{Xie2013}.  Figures and tables in this paper are generated
+dynamically as the document is compiled.  Several R packages are
+required to run the analysis.  Materials are archived in the
+Gigascience database \citep{web:gigadb}, and full details are
+also given on the ``Code'' section of the accompanying website.
+
+\section*{List of abbreviations used}
+
+\vspace*{5mm}
+\begin{tabular}{ll}
+  \hline
+  CARMEN & Code Analysis, Repository and Modelling for  E-Neuroscience\\
+  CDF & Cumulative Distribution Function\\
+  CRAN & Comprehensive R Archive Network\\
+  EEG & Electroencephalography\\
+  HDF5 & Hierarchical Data Format, version 5\\
+  INCF & International Neuroinformatics Coordinating Facility\\
+  KO  & Knock-Out\\
+  MEA & multielectrode array\\
+  NDF & Neural Data Translation Format\\
+  Pn  & Postnatal day $n$, e.g. P5 for Postnatal day 5\\
+  RGC & retinal ganglion cell\\
+  TG  & Transgenic\\
+  \hline
+
+\end{tabular}
+
+\section*{Competing interests}
+
+The authors declare that they have no competing interests.
+
+\section*{Authors' contributions}
+
+SJE and ES conceived and designed the project. SJE and JDS collected
+and pre-processed data from groups.  SJE curated and processed data,
+as well as contributed code.  MJ, TJ and MW carried out CARMEN
+workflow analysis.  SJE, TJ, ES and MW wrote the manuscript.  All
+authors read and approved the final manuscript.
+
+
+\section*{Acknowledgements}
+We thank all the investigators who have contributed data to the
+repository.  Thanks to Matthias Hennig and Matthew Down for providing
+a burst analysis algorithm for use in the CARMEN workflow.  Andrew
+Morton provided a Neuroexplorer script for converting data files.  This
+work was supported by grants from EPSRC (EP/E002331/1), BBSRC
+(BB/H023577/1 and BB/I000984/1) and Wellcome Trust (083205/B/07/Z).
+
+
+\bibliographystyle{bmc-mathphys}
+\bibliography{waverepo}
+
+
+
+\clearpage
+
+
+
+\subsection*{Figures}
+
+<<requires-1,include=FALSE,message=FALSE>>=
+require(rhdf5)
+require(sjemea)
+@
+
+<<requires,include=FALSE,message=FALSE>>=
+require(knitr)
+require(xtable)
+require(parallel)
+require(RColorBrewer)
+@
+
+
+<<setup-knitr,eval=TRUE,include=FALSE>>=
+options(width=60)
+opts_chunk$set(cache=TRUE)
+opts_chunk$set(echo=FALSE)              #don't show code in document.
+opts_chunk$set(dev='pdf')
+h5read1 <- function(f, name, default=NA) {
+  tryCatch( h5read(f, name), error=function(e) default)
+}
+
+h5readv <- function(files, name, default=NA) {
+  ## Vectorized version to read NAME from all HDF5 files.
+  sapply(files, function(f) h5read1(f, name, default))
+}
+
+## USER-EDITS: Set number of cores to use; set this to one or two if
+## you are morking on a small machine.
+options(mc.cores = 12)
+@
+
+<<hdf5-root,error=FALSE>>=
+## USER-EDITS: the Variable hdf5.root needs to point to the "hdf5"
+## folder where the .h5 files are contained.  The program searches
+## recursively through this folder for data files.
+WAVEREPO <- Sys.getenv("WAVEREPO_ROOT")
+if (WAVEREPO == "") {
+  ## None given, so assume hdf5 files are in the current directory.
+  if (file.exists("./hdf5")) {
+    WAVEREPO = "./"
+  } else {
+    stop("Cannot find hdf5 files in the current directory.  Please check script.\n")
+  }
+}
+hdf5.root <- paste0(WAVEREPO, "hdf5/")
+
+h5.files <- list.files(path=hdf5.root, pattern='.h5',
+                       full.names=TRUE, recursive=TRUE)
+stopifnot(length(h5.files)>0)
+@
+
+<<keys-table,include=FALSE>>=
+keys <- h5readv(h5.files, 'meta/key')
+keys.table <- table(keys)
+keys.df <- as.data.frame(keys.table)
+names(keys.df) <- c("key", "n")
+keys.df$citation <- paste0("\\cite{",keys.df$key, "}")
+print(xtable(keys.df),
+      include.rownames=FALSE,
+      sanitize.text.function = function(x) {x},floating=FALSE)
+@
+
+<<species-table,results='asis',include=FALSE>>=
+values.to.dataframe <- function(values) {
+  df <- as.data.frame(table(values))
+  names(df) <- c(deparse(substitute(values)), "n")
+  df
+}
+species <- h5readv(h5.files, 'meta/species')
+print(xtable(values.to.dataframe(species)),
+      floating=FALSE, include.rownames=FALSE)
+@
+
+<<ages-table,results='asis',include=FALSE>>=
+ages <- h5readv(h5.files, 'meta/age')
+print(xtable(table(keys, ages)), floating=FALSE)
+@
+<<genotype-table,results='asis',include=FALSE>>=
+
+genotype <- h5readv(h5.files, 'meta/genotype', 'wt')
+#print(xtable(values.to.dataframe(genotype)),
+#      floating=FALSE, include.rownames=FALSE)
+tab <- table(keys,genotype)
+colnames(tab) <- paste("\\rotatebox{90}{", colnames(tab),"}", sep='')
+print(xtable(tab), floating=FALSE, sanitize.text.function=function(x){x})
+@
+
+<<conds-table,results='asis',include=FALSE>>=
+cond <- h5readv(h5.files, 'meta/cond', 'ctl')
+print(xtable(values.to.dataframe(cond), align=c("l", "p{6cm}", "r")),
+      floating=FALSE, include.rownames=FALSE)
+@
+
+<<master>>=
+master <- data.frame(file=basenamepy(h5.files)$base, key=keys, species=species,
+                     age=ages, genotype=genotype, cond=cond)
+rownames(master) <- NULL
+@
+
+<<nelec-durn-calc,echo=FALSE>>=
+## 2014-02-07: compute this the cheap way with the summary information.
+counts = h5readv(h5.files, '/summary/N')
+durns = h5readv(h5.files, '/summary/duration')
+file.sizes = sapply(h5.files, function(f) file.info(f)$size)
+file.size.mb = round(  sum(file.sizes)/(1024*1024))
+@
+
+\begin{figure}[h]
+  \centering
+  <<nelec-durn-fig,echo=FALSE>>=
+  keys.f <- as.factor(keys)
+  n.labs <- nlevels(keys.f)
+  ## Set1 has a max of 9 cols
+  ## Set3 has a max of 12 cols, but 2nd colour is very close to white.
+  ## display.brewer.pal(12, 'Set3')
+  ## so we change it to grey (we need 12 sets now...)
+  lab.cols = brewer.pal(n=n.labs, name='Set3')
+  lab.cols[2] = "#444444"
+  stopifnot(length(lab.cols) == n.labs)
+  
+  plot(counts, durns/60, log='xy', pch=20, col=lab.cols[keys.f],
+         xlab='Number of spike trains',
+         xlim=c(2, 2000),
+         ylab='Duration of recording (min)', bty='n', las=1)
+  legend('topleft', legend=levels(keys.f), cex=0.8,
+           ncol=2, col=lab.cols[1:n.labs], pch=19)
+  @
+\caption{Basic features of recordings in the repository.  Each
+  recording is summarised by its number of spike trains and its duration.
+  The colour of each point indicates which collection the recording
+  comes from.  Both axes are plotted on a log scale. We currently have
+  \Sexpr{length(h5.files)} recordings in the repository, occupying
+  \Sexpr{file.size.mb} MB on disc.
+  %%
+  \dynamic}
+\label{fig:nelec-durn}
+\end{figure}
+
+
+<<write-master,echo=FALSE>>=
+master$counts <- counts
+master$durations <- durns/60
+write.csv(master, file="waverepo_table.csv", row.names=FALSE)
+@
+%% This might be neater, but not sure if worth it.
+%% 
+%% <<dataframe-test>>=
+%% require(lattice)
+%% df <- data.frame(nelec=counts, durn=durns, key=keys)
+%% xyplot(nelec~durns, data=df, log='xy', scales=list(log=TRUE))
+%% @
+
+
+<<fourplot-label,echo=FALSE>>=
+## Define a fourplot to include the labels A-D.
+## Is there an easier way to do this, with e.g. a hook?
+fourplot.label <- function(s, names=FALSE, raster.time=NULL) {
+  ## Simple 2x2 summary plot of an "s" structure.
+  ## raster.time should be a 2-vector of (beg, end) time.
+  old.par <- par(no.readonly = TRUE)
+  on.exit(par(old.par))
+  
+  par(mfrow=c(2,2), oma=c(0,0,2,0), las=1)
+  
+  plot(s$layout, use.names=names)                        #show layout of electrodes.
+  plot.meanfiringrate(s, main='')
+  if (is.null(raster.time)) {
+    plot(s, main='', label.cells=names, use.names=names)                      #plot the spikes.
+  }
+  else {
+    plot(s, main='', label.cells=names, use.names=names,
+         beg=raster.time[1], end=raster.time[2])
+  }
+
+  ##   if	(!is.na(s$corr$corr.indexes[1])) {
+  if( any(names(s)=="corr")) {
+    plot.corr.index(s, main='')
+  }
+  mtext(basenamepy(s$file)$base, side=3, outer=T)
+
+  ## This is the extra text.  Needed in here because of the
+  ## exit hook to revert the old parameters.
+  text(grconvertX(c(0.04, 0.51, 0.04, 0.51), from='ndc'),
+     grconvertY(c(0.93, 0.93, 0.47, 0.47), from='ndc'),
+     c('A',  'B',  'C',  'D'), xpd=NA, cex=1.5, font=2)
+
+}
+@
+
+
+\begin{figure}
+  \centering
+  <<fourplot, echo=FALSE,warning=FALSE,message=FALSE>>=
+  file = paste0(hdf5.root, "Wong1993/Wong1993_P1.h5")
+  s = h5.read.spikes(file)
+  fourplot.label(s)
+  @
+\caption{Ten minutes of spontaneous activity from P1 ferret retina
+  recorded using a MEA. The name of the data file is given at the top
+  of the plot.  A: the estimated position of each unit is
+  plotted.  Each spike train is given a unique
+  number; overlapping numbers indicate that more than one unit was
+  assigned the same position.  B: the firing rate estimated in
+  one second bins, averaged across the entire array.  Periodic
+  elevations in firing rate, followed by long periods of relative
+  silence, are characteristic of retinal waves.  C: the
+  raster showing the spike times of all units (starting with unit
+  one at the bottom).  D: the correlation index plot
+  \citep{Wong1993}, described in detail in Figure~\ref{fig:wong-ci}.
+  %%
+  \dynamic}
+\label{fig:fourplot}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  <<wong-ci-fig,echo=FALSE,results='none',warning=FALSE,message=FALSE>>=
+  file = paste0(hdf5.root, "Wong1993/Wong1993_P0.h5")
+  s = h5.read.spikes(file)
+  ci.xlabel = expression(paste("inter-unit distance (",
+                          mu, "m)"))
+  options(scipen=3)                     #prefer fixed notation for this plot
+  plot.corr.index(s, log="y", las=1, ylim=c(0.1, 100),
+                    xlabel = ci.xlabel,
+                    pch=20, show.fit=FALSE)
+  @
+\caption{Example correlation index plot.  For each pair of units
+  we plot the correlation index computed between the two spike trains 
+  against the distance on separating the two
+  units.  This plot denotes the correlation index curve for the file
+  \protect\url{Wong1993_P0.h5} (ferret P0), and matches the 
+  correlation index plot shown in Figure 8 of \citep{Wong1993}.
+  (The y axis is plotted on a logarithmic axis to match the original figure.)
+  The only observable difference is that in our plot we have included
+  correlations for pairs of units that share the same array location
+  (inter-unit distance = 0\,\um).
+  %%
+  \dynamic}
+\label{fig:wong-ci}
+\end{figure}
+
+
+
+%% {r CI, fig.lp='fig:',fig.cap='Correlation index plots (compare Fig 1G
+%%  of Xu et al 2011)'}
+
+
+<<CI>>=
+## Find the datasets that we want to analyse.
+xu.set <- with(master, {which(key=='Xu2011')})
+xu.h5 <- h5.files[xu.set]
+corr.means <- mclapply(xu.h5, function(f) {
+  s <- h5.read.spikes(f, keep.meta=TRUE)
+  cond <- s$meta$genotype
+  means <- s$corr$corr.id.means
+  res <- list(cond=cond, means=means)
+})
+@
+
+
+
+
+<<CI-sun,eval=FALSE>>=
+## Look at B2 data from Sun et al.
+sun.set <- with(master, {which((age==4)&
+                               (genotype=='wt'|genotype=='Beta2 Xu')&
+                               (key=='Sun2008'))})
+sun.h5 <- h5.files[sun.set]
+sun.corr.means <- mclapply(sun.h5, function(f) {
+  s <- h5.read.spikes(f, keep.meta=TRUE)
+  cond <- s$meta$genotype
+  means <- s$corr$corr.id.means
+  res <- list(cond=cond, means=means)
+})
+@
+
+<<CIplotSun,eval=FALSE>>=
+plot(NA,xlim=c(200, 1500), ylim=c(0, 50), bty='n',las=1,
+     xlab='distance (um)', ylab='Correlation index')
+n <- length(sun.corr.means)
+n.wt <- 0
+for (i in 1:n) {
+  dat <- sun.corr.means[[i]]$means
+  col <- ifelse(sun.corr.means[[i]]$cond=='wt', 'black', 'blue')
+  if (sun.corr.means[[i]]$cond=='wt')
+    n.wt <- n.wt + 1
+  lines(dat[,"mid"], dat[,"mean"],col=col)
+}
+legend('topright', c(sprintf('WT (n=%d)', n.wt),
+                     sprintf('β2 (n=%d)', n-n.wt)),
+       lty=1, col=c('black', 'blue')) 
+@
+
+
+<<CIplot,include=FALSE>>=
+##Compute plot here, but don't show it.  This is just
+##as an example of referring to a chunk computed elsewhere.
+##The trick is to have an empty chunk the second time.
+## http://yihui.name/knitr/demo/reference/ (reuse chunks)
+## Better to use ref.label, as these chunks can be cached.
+plot(NA,xlim=c(0, 850), ylim=c(0, 25), bty='n',las=1,
+     xlab = ci.xlabel,
+     ylab='Correlation index')
+n <- length(corr.means)
+n.wt <- 0
+for (i in 1:n) {
+  dat <- corr.means[[i]]$means
+  col <- ifelse(corr.means[[i]]$cond=='wt', 'black', 'blue')
+  if (corr.means[[i]]$cond=='wt')
+    n.wt <- n.wt + 1
+  lines(dat[,"mid"], dat[,"mean"],col=col)
+}
+legend('topright', c(sprintf('WT (n=%d)', n.wt),
+                     sprintf('B2(TG) (n=%d)', n-n.wt)),
+       lty=1, col=c('black', 'blue'))
+@
+
+\begin{figure}
+  \centering
+  <<Xu-CI-plot,ref.label='CIplot',echo=FALSE>>=
+  @
+  \caption{Family of correlation index plots to summarise retinal wave
+    data recorded at P4  \cite{Xu2011}.  Each line represents the
+    mean correlation index, where the inter-unit distance has been
+    grouped into approximately 100\,\um bins, from one recording.  The
+    colour of the line denotes whether the recording was taken from a
+    wild-type or \tg mouse.  
+    %%
+    \dynamic}
+  \label{fig:Xu-CI}  
+\end{figure}
+
+
+    
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=12cm]{carmenservice/carmen-workflow-crop.pdf}
+  \caption{Example of the CARMEN workflow facility.  Ellipses denote
+    files and boxes denote CARMEN services.  Four HDF5 files are
+    independently converted into NDF for burst analysis.  The outputs
+    (in this case, the duration of each burst detected on each
+    electrode) are then collated into a report generation service to
+    produce a graphical summary, shown in Figure~\ref{fig:carmenburst}. \static}
+  \label{fig:workflow}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=12cm]{carmenservice/op-v3-crop.pdf}
+  \caption{Burst durations for spontaneous activity recorded from four
+    laboratories at postnatal day 5 or 6.  This file is the output
+    from the CARMEN workflow illustrated in Figure~\ref{fig:workflow}.
+    One file was selected from four different datasets.  Each curve
+    shows the cumulative distribution (denoted CDF) of burst
+    durations.  The number of bursts detected from each recording were
+    Stacy2005: 2903 bursts (from 60 units); Stafford2009: 3338 (571);
+    Hennig2011: 16896 (58); Torborg2004: 4 (13).
+    \static}
+  \label{fig:carmenburst}
+\end{figure}
+
+
+
+\clearpage
+\section*{Tables}
+
+
+\begin{table}[h]
+  \centering
+  \begin{tabular}{lllp{10cm}l}
+    \hline
+    Name & Type & Default & Description & Table\\
+    \hline 
+    \hdfgroup{key} &
+    string & --- & 
+    A primary key to indicate the
+    study that the file is associated with.  This is typically of the form
+    \textit{Wong1993}, i.e. surname of first author and 
+    year of main paper \citep{Wong1993}.
+    &
+    Table~\ref{tab:n}
+    \\
+    \hdfgroup{species} &
+    string & ---& Species name; most
+    recordings are from mouse, but we also have  ferret recordings
+    \citep{Wong1993}.  Although ages for both animals are given in
+    postnatal days, ferret and mice have different gestational periods,
+    and so cannot be directly compared.
+    &
+    Table~\ref{tab:species}
+    \\
+    \hdfgroup{age} &
+    integer & --- & Postnatal age of the animal.
+    For one study \citep{Wong1993}, adult recordings were
+    represented as age 500 days.  (There are currently no embryonic
+    recordings, but these could be represented by negative values;
+    zero is the day of birth.)
+    &
+    Table~\ref{tab:age}
+    \\
+    \hdfgroup{genotype} &
+    string & ``wt'' &
+    genotype (of the
+    mouse), with the default ``wt'' indicating a wild-type mouse.  
+    &
+    Table~\ref{tab:genotypes}
+    \\
+    \hdfgroup{cond} &
+    string & ``ctl''&
+    A brief description of
+    the conditions under which the spontaneous activity were made. e.g.
+    some recordings were made in dark reared (``dr'') mice, and
+    sometimes pharmacological agents were used.  If no condition is
+    supplied, control (``ctl'') is assumed.
+    &
+    Table~\ref{tab:conds}
+    \\
+    \hline
+  \end{tabular}
+  \caption{Metadata items stored in the repository. Values with no
+    default are compulsory.  The final column refers to subsequent
+    tables for more details on each name. \static}
+  \label{tab:meta}
+\end{table}
+
+\begin{table}
+  \centering
+  <<ref.label='keys-table',results='asis'>>=
+  @
+  \caption{Keys and citations of the data sources in the repository.  n
+    is the number of files associated with each key. \dynamic}
+  \label{tab:n}
+\end{table}
+
+\begin{table}
+  \centering
+  <<ref.label='species-table',results='asis'>>=
+  @
+  \caption{Numbers of recordings for each species. \dynamic}
+\label{tab:species}
+\end{table}
+
+\begin{table}
+  \centering
+  <<ref.label='ages-table',results='asis'>>=
+  @
+\caption{Numbers of files from each study (rows) for each postnatal age (columns). \dynamic}
+\label{tab:age}
+\end{table}
+
+
+
+\begin{table}
+  \centering
+  <<ref.label='genotype-table',results='asis'>>=
+  @
+\caption{Numbers of recordings of each genotype included in
+  the repository. Note that Wong1993 data are from ferret. \dynamic}
+  \label{tab:genotypes}
+\end{table}
+
+
+\clearpage %% tables are too packed together.
+\begin{table}
+  \centering
+  <<ref.label='conds-table',results='asis'>>=
+  @
+  \caption{Pharmacological and environmental conditions under which
+    spontaneous activity were recorded.   Where possible, the
+    descriptions of the conditions follow those provided with the
+    original data. \dynamic}
+\label{tab:conds}
+\end{table}
+
+
+<<arrays-tab,results='asis',include=FALSE>>=
+## This is a good table to compare with the following table for debugging.
+## Need to compute the arrays.
+arrays <-  h5readv(h5.files, 'array')
+xtable(table(arrays))
+@
+
+ 
+<<arraydescriptions>>=
+## Maybe this should go in the R package?
+array.description <- list()
+array.description$EJC1_hex_60um <- "61 electrodes on hexagonal lattice with 60\\,\\um spacing (EJ Chichilnisky, Salk)."
+array.description$litke_hex_60um <- "512 electrodes on hexagonal lattice with 60\\,\\um spacing (AM Litke, UCSC)."
+array.description$MCS_8x8_100um <- "60 electrodes in square lattice (corners missing) with 100\\,\\um spacing (Multi Channel Systems)."
+array.description$MCS_8x8_200um <- "60 electrodes in square lattice (corners missing) with 200\\,\\um spacing (Multi Channel Systems)."
+array.description$stanford_hex_60um <- "61 electrodes on hexagonal lattice with 60\\,\\um spacing (Stanford)."
+array.description$APS_64x64_42um <- "4096 electrodes in square lattice with 42\\,\\um spacing (L Berdondini, IIT)."
+
+table.names <- (unique(arrays))
+array.names.counts <- table(arrays)
+n <- array.names.counts[table.names]
+desc <- unlist(array.description[table.names])
+df <- data.frame(array=table.names, n=n, description=desc)
+@
+
+\begin{table}
+  \centering
+  <<counts-table,results='asis'>>=
+  ## Bit of xtable magic here; underscores in names are converted to quotes, whereas
+  ## the \um is unchanged.
+  print(xtable(df,align=c("l", "l", "r", "p{8.5cm}")),
+          sanitize.text.function = function(str)gsub("_","\\_",str,fixed=TRUE),
+          floating=FALSE, include.rownames=FALSE)
+  @
+\caption{Descriptions of the MEA layouts in the
+  repository, along with their name and number (n) of recordings.  \dynamic}
+\label{tab:names}
+\end{table}
+
+
+
+\begin{table}
+  \centering
+  \begin{tabular}{ll}
+    \\ \hline
+    Key & Spike sorting method \\ \hline
+    Blankenship2011 & Plexon offline sorter \\
+    Demas2003 &      Plexon offline sorter \\
+    Demas2006 &      Plexon offline sorter \\
+    Hennig2011 &     Wave\_clus \citep{Quian_Quiroga2004} \\
+    Kirkby2013 &     Plexon offline sorter \\
+    Maccione2014 &   None                  \\
+    Stacy2005 &      None                  \\
+    Stafford2009 &   Mixture of Gaussians model \citep{Litke2004}  \\
+    Sun2008 &        Plexon Offline sorter \\
+    Torborg2004 &    Manual clustering     \\
+    Wong1993 &       Manual clustering     \\
+    Xu2011 &         Plexon offline sorter \\
+    \hline
+  \end{tabular}
+  \caption{Summary of spike sorting methods used to create spike
+    trains.  \static}
+  \label{tab:sorting}
+\end{table}
+\clearpage
+
+
+\subsubsection*{Session information}
+
+<<session-info,results='asis'>>=
+toLatex(sessionInfo())
+cat('Paper $ $Revision: 1.63 $ $\n')
+@
+
+\end{document}
+
+
+%  LocalWords:  Eglen Jessop Simonotto Sernagor Neuroscience workflow
+%  LocalWords:  Hammersmith Framlington photoreceptors multi HDF MEAs
+%  LocalWords:  spatiotemporal datasets waverepo mathematica matlab
+%  LocalWords:  julia MEA bicuculline excitatory GABA cholinergic RGC
+%  LocalWords:  neurotransmission RGCs macintosh genotype nicotonic
+%  LocalWords:  recomputation acetylcholine transgenically indices
+%  LocalWords:  neuroscientists metadata electrophysiology NDF INCF
+%  LocalWords:  workflows durations hippocampal datasharing EPSRC
+%  LocalWords:  Neuroinformatics Wellcome Hennig BBSRC connexin
+%  LocalWords:  fourplot
