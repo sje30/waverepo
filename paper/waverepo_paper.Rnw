@@ -773,9 +773,9 @@ options(mc.cores = 12)
 ## recursively through this folder for data files.
 WAVEREPO <- Sys.getenv("WAVEREPO_ROOT")
 if (WAVEREPO == "") {
-  ## None given, so assume hdf5 files are in the current directory.
-  if (file.exists("./hdf5")) {
-    WAVEREPO = "./"
+  ## None given, so assume hdf5 files are in the parent directory.
+  if (file.exists("../hdf5")) {
+    WAVEREPO = "../"
   } else {
     stop("Cannot find hdf5 files in the current directory.  Please check script.\n")
   }
