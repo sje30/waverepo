@@ -14,6 +14,7 @@ minutes) and then make the paper (which can take a few minutes):
 	make rpackages
 	make
 
+If everything worked okay, you should then see `waverepo_paper.pdf`.
 When you are finished, `make cleanall` should remove everything that
 is not in the git repository.
 
