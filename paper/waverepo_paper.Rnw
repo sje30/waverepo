@@ -878,7 +878,7 @@ file.size.mb = round(  sum(file.sizes)/(1024*1024))
 <<write-master,echo=FALSE>>=
 master$counts <- counts
 master$durations <- durns/60
-write.csv(master, file="waverepo_table.csv", row.names=FALSE)
+##write.csv(master, file="waverepo_table.csv", row.names=FALSE)
 @
 %% This might be neater, but not sure if worth it.
 %% 
