@@ -9,3 +9,8 @@ clean:
 cleanall:
 	rm -fr cache figure waverepo_paper.pdf waverepo_paper.R
 
+.PHONY: rpackages
+
+rpackages:
+	R CMD BATCH waverepo_installs.R
+
