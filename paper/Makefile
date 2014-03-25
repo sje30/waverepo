@@ -13,5 +13,5 @@ cleanall:
 .PHONY: rpackages
 
 rpackages:
-	R CMD BATCH waverepo_installs.R
+	R -f waverepo_installs.R
 
