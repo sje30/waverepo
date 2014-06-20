@@ -19,6 +19,8 @@ When you are finished, `make cleanall` should remove everything that
 is not in the git repository.
 
 The paper should look something like the version lodged in
-[biorxiv](http://dx.doi.org/10.1101/000455).
+[biorxiv](http://dx.doi.org/10.1101/000455) or the
+[final paper](http://www.gigasciencejournal.com/content/3/1/3).
+
 
 

@@ -3,7 +3,9 @@
 
 [Retinal wave data repository](http://www.damtp.cam.ac.uk/user/sje30/waverepo)
 
-This repository contains the source code for our upcoming paper.
+This repository contains the source code for our
+[2014 paper](http://www.gigasciencejournal.com/content/3/1/3).
+
 
 ## Data files
 
