@@ -1,4 +1,6 @@
 \documentclass{bmcart}
+%% Tell Rstudio this is a knitr document.
+%% !Rnw weave = knitr
 \usepackage{mathpazo}
 \usepackage[utf8]{inputenc} %unicode support
 \renewcommand{\sfdefault}{lmss}
