@@ -17,6 +17,14 @@ Material relevant to the paper is in paper/ folder.  The paper is
 written as a reproducible research document.  See the README in that
 folder.
 
+### Peer review
+
+[Gigascience](http://gigasciencejournal.com) allows for open peer review, so you can see all the
+[peer-review reports and responses](https://gigascience.biomedcentral.com/articles/10.1186/2047-217X-3-3/open-peer-review).  In particular, note the
+[supplementary pdf]() sent by Christophe Pouzat, which demonstrates
+an advantage of submitting your code - he was able to show
+alternative methods for presenting the results.
+
 ## Docker
 
 We now have a docker container for this project:
