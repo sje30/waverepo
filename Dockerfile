@@ -1,4 +1,4 @@
-FROM rocker/hadleyverse
+FROM rocker/tidyverse
 MAINTAINER Stephen Eglen <sje30@cam.ac.uk>
 
 ENV PROJ /home/rstudio/waverepo
@@ -8,6 +8,16 @@ RUN git clone https://github.com/sje30/waverepo.git $PROJ
 WORKDIR $PROJ/paper
 RUN make rpackages
 RUN make
+
+RUN mkdir codecheck
+
+RUN date > codecheck/date.txt
+RUN uname -a > codecheck/uname.txt
+RUN cp figure/CIplot-1.pdf codecheck
+RUN cp figure/nelec-durn-fig-1.pdf codecheck
+RUN cp figure/wong-ci-fig-1.pdf codecheck
+RUN cp figure/Xu-CI-plot-1.pdf codecheck
+
 
 
 ## Tips taken from Ben Marwick's Dockerfile
