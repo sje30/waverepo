@@ -1,4 +1,4 @@
-all: waverepo_paper.pdf
+all: waverepo_paper.tex
 
 waverepo_paper.pdf: waverepo_paper.Rnw waverepo.bib
 	Rscript -e 'knitr::knit2pdf("waverepo_paper.Rnw")'
