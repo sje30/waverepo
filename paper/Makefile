@@ -3,6 +3,10 @@ all: waverepo_paper.pdf
 waverepo_paper.pdf: waverepo_paper.Rnw waverepo.bib
 	Rscript -e 'knitr::knit2pdf("waverepo_paper.Rnw")'
 
+
+waverepo_paper.tex: waverepo_paper.Rnw waverepo.bib
+	Rscript -e 'knitr::knit("waverepo_paper.Rnw")'
+
 clean:
 	rm -f waverepo_paper.tex *.blg *.bbl waverepo_paper.pdf
 
