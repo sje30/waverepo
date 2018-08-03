@@ -1,5 +1,5 @@
 ## -*- docker-image-name: "sje30/waverepo" -*-
-FROM rocker/tidyverse
+FROM rocker/verse
 MAINTAINER Stephen Eglen <sje30@cam.ac.uk>
 
 ENV PROJ /home/rstudio/waverepo
